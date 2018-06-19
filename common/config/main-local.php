@@ -1,11 +1,12 @@
 <?php
+
 return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=127.0.0.1;dbname=clone', //rajencba_clonecontacts
-            'username' => 'root',  //rajencba_clonec
-            'password' => '', //7}6G&wefF7{[
+            'dsn' => 'mysql:host=localhost;dbname=cuddlypets',
+            'username' => 'root',
+            'password' => '',
             'charset' => 'utf8',
         ],
         'mailer' => [
@@ -15,9 +16,9 @@ return [
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
             'useFileTransport' => true,
-             'useFileTransport' => false,
+            'useFileTransport' => false,
             'transport' => [
-               'class' => 'Swift_SmtpTransport',
+                'class' => 'Swift_SmtpTransport',
                 'host' => 'smtp.gmail.com',
                 'username' => 'sumanasdev@gmail.com',
                 'password' => 'sum@n@stech',
