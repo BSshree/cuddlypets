@@ -30,7 +30,7 @@ return [
             'baseUrl' => '',
         ],
             'user' => [
-            'identityClass' => 'common\models\User',
+            'identityClass' => 'common\models\Users',
             'enableSession' => false,
             'loginUrl' => null,
         ],

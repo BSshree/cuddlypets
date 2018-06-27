@@ -3,6 +3,8 @@
 namespace common\models;
 
 use Yii;
+use yii\web\IdentityInterface;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "users".
@@ -15,7 +17,7 @@ use Yii;
  * @property string $profile_image
  * @property int $status
  */
-class Users extends \yii\db\ActiveRecord {
+class Users extends \yii\db\ActiveRecord implements IdentityInterface{
 
     /**
      * @inheritdoc
@@ -23,6 +25,7 @@ class Users extends \yii\db\ActiveRecord {
     public $old_pass;
     public $new_pass;
     public $confirm_pass;
+    public $retype_pass;
 
     public static function tableName() {
         return '{{%users}}';
@@ -100,11 +103,29 @@ class Users extends \yii\db\ActiveRecord {
     public function validatePassword($password) {
         return Yii::$app->security->validatePassword($password, $this->password);
     }
+    
+     public static function findIdentityByAccessToken($token, $type = null) {
+        return static::findOne(['auth_key' => $token]);
+    }
 
     public function generateAuthKey() {
         return Yii::$app->security->generateRandomString();
     }
 
+     public function getAuthKey() {
+        return $this->auth_key;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function validateAuthKey($authKey) {
+        return $this->getAuthKey() === $authKey;
+    }
+    
+    public static function findIdentity($id) {
+        return static::findOne(['login_id' => $id, 'status' => self::STATUS_ACTIVE]);
+    }
 //    public static function findByEmail($email) {
 //        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
 //    }
@@ -122,8 +143,8 @@ class Users extends \yii\db\ActiveRecord {
             return Yii::$app->mailer->compose()
                             ->setFrom('sumanasdev@gmail.com')
                             ->setTo($toemail)
-                            ->setSubject('Clone Contact - Request to reset your password')
-                            ->setHtmlBody('Hi, <br/><br/> We have received your request to reset your password.<br/><br/> Please note the new password  <b>' . $randpass . '</b> which is to be used to login <br/><br/>Thanks, <br/><br/> Clone Contact Team.')
+                            ->setSubject('Cuddly Pets - Request to reset your password')
+                            ->setHtmlBody('Hi, <br/><br/> We have received your request to reset your password.<br/><br/> Please note the new password  <b>' . $randpass . '</b> which is to be used to login <br/><br/>Thanks, <br/><br/> <b>Cuddly Pets Team</b>.')
                             ->send();
         endif;
     }

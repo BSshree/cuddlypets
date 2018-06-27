@@ -11,6 +11,7 @@ use yii\filters\ContentNegotiator;
 use yii\rest\ActiveController;
 use yii\web\Response;
 use yii\web\UploadedFile;
+use yii\filters\AccessControl;
 
 /**
  * Default controller for the `v1` module
@@ -27,12 +28,23 @@ class UsersController extends ActiveController {
         $behaviors = parent::behaviors();
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::className(),
-            'only' => ['index'],
+            'only' => ['editprofile', 'viewprofile', 'changepassword', 'forgotpassword', 'aboutus', 'contactus'],
         ];
         $behaviors['contentNegotiator'] = [
             'class' => ContentNegotiator::className(),
             'formats' => [
                 'application/json' => Response::FORMAT_JSON,
+            ],
+        ];
+        $behaviors['access'] = [
+            'class' => AccessControl::className(),
+            'only' => ['editprofile', 'viewprofile', 'changepassword', 'forgotpassword', 'aboutus', 'contactus'],
+            'rules' => [
+                    [
+                    'actions' => ['editprofile', 'viewprofile', 'changepassword', 'forgotpassword', 'aboutus', 'contactus'],
+                    'allow' => true,
+                    'roles' => ['@'],
+                ],
             ],
         ];
         return $behaviors;
@@ -43,57 +55,65 @@ class UsersController extends ActiveController {
         $post = Yii::$app->request->getBodyParams();
         $password = $post['password'];
         if (!empty($post)) {
-            $user->load(Yii::$app->request->getBodyParams(), '');
-            $user->auth_key = $user->generateAuthKey();
-            $user->password = $user->setPassword($password);
-            $user->status = 0;
-            if ($profile_img = UploadedFile::getInstancesByName("profile_image")) {
-                foreach ($profile_img as $file) {
-                    $file_name = str_replace(' ', '-', $file->name);
-                    $randno = rand(11111, 99999);
-                    $path = Yii::$app->basePath . '/web/uploads/images/' . $randno . $file_name;
-                    $file->saveAs($path);
-                    $user->profile_image = $randno . $file_name;
-                }
-            } else {
-                $user->profile_image = 'default.png';
-            }
-            if ($user->save()) {
-                $values[] = [
-                    'id' => $user->id,
-                    'auth_key' => $user->auth_key,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                    'profile_image' => $user->profile_image,
-                    'status' => $user->status
-                ];
-                $auth_key = $user->auth_key;
-                $uid = $user->id;
-                $mail_sub = 'Clone Contact Account Activation';
-                $mail_body = "Hi " . $user->username . ",<br><br>";
-                $mail_body .= "Please click the below link to activate your account. <br><br>";
-                $mail_body .= " http://clonecontacts.arkinfotec.in/api/v1/users/emailverification?auth_key=$auth_key&uid=$uid";
-                $mail_body .= " <br><br>Thank you. <br><br> <b>Regards, <br> Clone Contact team</b><br>";
-                $emailSend = Yii::$app->mailer->compose()
-                        ->setFrom(['sumanasdev@gmail.com'])
-                        ->setTo($user->email)
-                        ->setSubject($mail_sub)
-                        ->setHtmlBody($mail_body)
-                        ->send();
+            if ($post['password'] == $post['retype_password']) {
 
-                if ($emailSend) {
+                $user->load(Yii::$app->request->getBodyParams(), '');
+                $user->auth_key = $user->generateAuthKey();
+                $user->password = $user->setPassword($password);
+                $user->status = 0;
+                if ($profile_img = UploadedFile::getInstancesByName("profile_image")) {
+                    foreach ($profile_img as $file) {
+                        $file_name = str_replace(' ', '-', $file->name);
+                        $randno = rand(11111, 99999);
+                        $path = Yii::$app->basePath . '/web/uploads/images/' . $randno . $file_name;
+                        $file->saveAs($path);
+                        $user->profile_image = $randno . $file_name;
+                    }
+                } else {
+                    $user->profile_image = 'default.png';
+                }
+                if ($user->save()) {
+                    $values[] = [
+                        'id' => $user->id,
+                        'auth_key' => $user->auth_key,
+                        'username' => $user->username,
+                        'email' => $user->email,
+                        'profile_image' => $user->profile_image,
+                        'status' => $user->status
+                    ];
+                    $auth_key = $user->auth_key;
+                    $uid = $user->id;
+                    $mail_sub = 'Cuddly Pets Account Activation';
+                    $mail_body = "Hi " . $user->username . ",<br><br>";
+                    $mail_body .= "Please click the below link to activate your account. <br><br>";
+                    $mail_body .= " http://local.cuddlypets/api/v1/users/emailverification?auth_key=$auth_key&uid=$uid";
+                    $mail_body .= " <br><br>Thank you. <br><br> <b>Regards, <br> Cuddly Pets team</b><br>";
+                    $emailSend = Yii::$app->mailer->compose()
+                            ->setFrom(['sumanasdev@gmail.com'])
+                            ->setTo($user->email)
+                            ->setSubject($mail_sub)
+                            ->setHtmlBody($mail_body)
+                            ->send();
+
+                    if ($emailSend) {
+                        return [
+                            'success' => false,
+                            'message' => 'Please check your email to active your account',
+                            'data' => $values
+                        ];
+                    }
+                } else {
                     return [
                         'success' => false,
-                        'message' => 'Please check your email to active your account',
-                        'data' => $values
+                        'message' => 'Email Already Exists'
                     ];
+//                    print_r($user->getErrors()); exit;
                 }
             } else {
                 return [
                     'success' => false,
-                    'message' => 'Email Already Exists'
+                    'message' => 'Password Mismatch'
                 ];
-//                    print_r($user->getErrors()); exit;
             }
         } else {
             return [
@@ -115,7 +135,6 @@ class UsersController extends ActiveController {
             return $this->redirect(['/site/emailverification']);
         }
     }
-   
 
     public function actionLogin() {
         $post = Yii::$app->request->getBodyParams();
@@ -287,8 +306,8 @@ class UsersController extends ActiveController {
         return [
             'success' => true,
             'message' => 'About us',
-            'data' => "<p align='justify'>Cloud contact sounds people's kind of dairy marking their necessary contacts to get in touch with. "
-            . "Most people find it easier since its user-friendly app.</p> "
+            'data' => "<p align='justify'> Cuddly pets app is used to remind you about your pets activity. "
+            . "More number of pets can be categorised here.</p> "
             . "<p align='justify'>This has become one of the most handy APP's in android world. Majority usage of this APP has reached its safest heights as well. It keeps you far away from hacking and hanging."
             . " </p>"
             . "<p align='justify'>Its been trusted because of its security where third parties cannot easily been taken off ones information."
@@ -299,7 +318,7 @@ class UsersController extends ActiveController {
     public function actionContactus() {
 
         $values[] = [
-            'address' => 'No-01, Gandhiji St<br>Rasi Towers<br>http://www.sumanastech.com<br>Near Aparna Enclave<br>Madurai<br>625010<br>9966552200<br>info@clonecontact.com',
+            'address' => 'N244/3, Vivek Street<br> Duraisamy Nagar <br>Near Corporation Park<br>Bye-Pass Road<br>Madurai<br>625016<br>98948 37443<br>http://www.sumanastech.com<br>info@cuddlypets.com',
 //            'address_line_2' => 'Rasi Towers',
 //            'url' => 'http://www.sumanastech.com/',
 //            'landmark' => 'Near Aparna Enclave',
@@ -317,4 +336,4 @@ class UsersController extends ActiveController {
         ];
     }
 
-}
+}      
