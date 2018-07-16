@@ -4,13 +4,14 @@ namespace app\modules\api\modules\v1\controllers;
 
 use common\models\PetDetails;
 use common\models\BreedDetails;
+use common\models\PetCategory;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\ContentNegotiator;
 use yii\rest\ActiveController;
 use yii\web\Response;
 use yii\web\UploadedFile;
-use yii2tech\ar\softdelete\SoftDeleteBehavior;
+//use yii2tech\ar\softdelete\SoftDeleteBehavior;
 use yii\filters\AccessControl;
 
 class PetDetailsController extends \yii\web\Controller {
@@ -151,14 +152,15 @@ class PetDetailsController extends \yii\web\Controller {
         }
     }
 
-    public function actionListpet() {
+    public function actionMyalbum() {
 
         $post = Yii::$app->request->getBodyParams();
-        $pet_details = PetDetails::find()->where(['user_id' => $post['user_id']])->all();
+        $pet_details = PetDetails::find()->where(['user_id' => $post['user_id']])->andWhere(['pet_category_id' => $post['pet_category_id']])->all();
 
         foreach ($pet_details as $pets):
 
             $breed_details = BreedDetails::find()->where(['breed_id' => $pets['breed_id']])->one();
+            $pet_category = PetCategory::find()->where(['pet_category_id' => $pets['pet_category_id']])->one();
             $values[] = [
                 'pet_id' => $pets->pet_id,
                 'pet_name' => $pets->pet_name,
@@ -174,6 +176,8 @@ class PetDetailsController extends \yii\web\Controller {
             return [
                 'success' => true,
                 'message' => 'Success',
+                'pet_category_id' => $post['pet_category_id'],
+                'pet_category_name' => $pet_category['category_name'],
                 'data' => $values
             ];
         } else {
@@ -183,6 +187,44 @@ class PetDetailsController extends \yii\web\Controller {
             ];
         }
     }
+    
+    
+    public function actionListpet() {
+
+        $post = Yii::$app->request->getBodyParams();
+        $pet_details = PetDetails::find()->where(['user_id' => $post['user_id']])->all();
+
+        foreach ($pet_details as $pets):
+
+            $breed_details = BreedDetails::find()->where(['breed_id' => $pets['breed_id']])->one();
+            //$pet_category = PetCategory::find()->where(['pet_category_id' => $pets['pet_category_id']])->one();
+            $values[] = [
+                'pet_id' => $pets->pet_id,
+                'pet_name' => $pets->pet_name,
+                'breed' => $breed_details['breed_name'],
+                'secondary_breed' => $pets->secondary_breed,
+                'pet_height' => $pets->pet_height,
+                'pet_weight' => $pets->pet_weight,
+                'gender' => $pets->gender,
+            ];
+        endforeach;
+
+        if ($pet_details != NULL) {
+            return [
+                'success' => true,
+                'message' => 'Success',
+               // 'pet_category_id' => $post['pet_category_id'],
+               // 'pet_category_name' => $pet_category['category_name'],
+                'data' => $values
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'No Pets Exists',
+            ];
+        }
+    }
+
 
     public function actionDeletepet() {
 

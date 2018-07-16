@@ -1,6 +1,7 @@
 <?php
 
 namespace common\models;
+use yii2tech\ar\softdelete\SoftDeleteBehavior;
 
 use Yii;
 
@@ -33,6 +34,21 @@ class Reminders extends \yii\db\ActiveRecord
         return 'reminders';
     }
 
+     public function behaviors() {
+        return [
+            'softDeleteBehavior' => [
+                'class' => SoftDeleteBehavior::className(),
+                'softDeleteAttributeValues' => [
+                    'isDeleted' => true
+                ],
+                'replaceRegularDelete' => true // mutate native `delete()` method
+            ],
+        ];
+        return [
+            TimestampBehavior::className(),
+        ];
+    }
+    
     /**
      * {@inheritdoc}
      */
@@ -46,6 +62,7 @@ class Reminders extends \yii\db\ActiveRecord
             [['note'], 'string', 'max' => 525],
             [['pet_id'], 'exist', 'skipOnError' => true, 'targetClass' => PetDetails::className(), 'targetAttribute' => ['pet_id' => 'pet_id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [['breed_id'], 'exist', 'skipOnError' => true, 'targetClass' => BreedDetails::className(), 'targetAttribute' => ['breed_id' => 'breed_id']],
         ];
     }
 
@@ -85,4 +102,10 @@ class Reminders extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Users::className(), ['id' => 'user_id']);
     }
+    
+     public function getBreed()
+    {
+        return $this->hasOne(Users::className(), ['breed_id' => 'breed_id']);
+    }
+    
 }

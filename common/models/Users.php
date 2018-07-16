@@ -26,6 +26,8 @@ class Users extends \yii\db\ActiveRecord implements IdentityInterface{
     public $new_pass;
     public $confirm_pass;
     public $retype_pass;
+    public $title;
+    public $content;
 
     public static function tableName() {
         return '{{%users}}';

@@ -318,7 +318,7 @@ class UsersController extends ActiveController {
     public function actionContactus() {
 
         $values[] = [
-            'address' => 'N244/3, Vivek Street<br> Duraisamy Nagar <br>Near Corporation Park<br>Bye-Pass Road<br>Madurai<br>625016<br>98948 37443<br>http://www.sumanastech.com<br>info@cuddlypets.com',
+            'address' => 'N244/3, Vivek Street<br> Duraisamy Nagar <br>Near Corporation Park<br>By-Pass Road<br>Madurai<br>625016<br>98948 37443<br>http://www.sumanastech.com<br>info@cuddlypets.com',
 //            'address_line_2' => 'Rasi Towers',
 //            'url' => 'http://www.sumanastech.com/',
 //            'landmark' => 'Near Aparna Enclave',
