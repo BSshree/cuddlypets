@@ -49,6 +49,18 @@ class PetCategoryController extends \yii\web\Controller {
 
             $pet_category = new PetCategory();
             $pet_category->category_name = $post['category_name'];
+            $pet_category->pet_category_image = $post['pet_category_image'];
+
+            if ($profile_img = UploadedFile::getInstancesByName("pet_category_image")) {
+                foreach ($profile_img as $file) {
+                    $file_name = str_replace(' ', '-', $file->name);
+                    $randno = rand(11111, 99999);
+                    $path = Yii::$app->basePath . '/web/uploads/images/' . $randno . $file_name;
+                    $file->saveAs($path);
+                    $flz = $randno . $file_name;
+                    //$user->profile_image = $randno . $file_name;
+                }
+            }
 
             if ($pet_category->save()) {
 
@@ -65,4 +77,5 @@ class PetCategoryController extends \yii\web\Controller {
         }
     }
 
+    
 }

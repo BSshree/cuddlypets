@@ -86,7 +86,7 @@ class UsersController extends ActiveController {
                     $mail_sub = 'Cuddly Pets Account Activation';
                     $mail_body = "Hi " . $user->username . ",<br><br>";
                     $mail_body .= "Please click the below link to activate your account. <br><br>";
-                    $mail_body .= " http://local.cuddlypets/api/v1/users/emailverification?auth_key=$auth_key&uid=$uid";
+                    $mail_body .= " http://cuddlypets.arkinfotec.in/api/v1/users/emailverification?auth_key=$auth_key&uid=$uid";
                     $mail_body .= " <br><br>Thank you. <br><br> <b>Regards, <br> Cuddly Pets team</b><br>";
                     $emailSend = Yii::$app->mailer->compose()
                             ->setFrom(['sumanasdev@gmail.com'])

@@ -64,7 +64,7 @@ class PetDetails extends \yii\db\ActiveRecord
             [['pet_category_id', 'user_id', 'breed_id'], 'integer'],
             [['pet_image'], 'file'],
             [['pet_name', 'secondary_breed', 'pet_height', 'pet_weight', 'gender', 'birthday', 'adopt_date', 'sleep_time', 'play', 'sports', 'shelter', 'bath'], 'string', 'max' => 25],
-            [['breed_id'], 'exist', 'skipOnError' => true, 'targetClass' => BreedDetails::className(), 'targetAttribute' => ['breed_id' => 'breed_id']],
+            [['breed_id'], 'exist', 'skipOnError' => true, 'targetClass' => Breeds::className(), 'targetAttribute' => ['breed_id' => 'breed_id']],
             [['pet_category_id'], 'exist', 'skipOnError' => true, 'targetClass' => PetCategory::className(), 'targetAttribute' => ['pet_category_id' => 'pet_category_id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
@@ -100,7 +100,7 @@ class PetDetails extends \yii\db\ActiveRecord
      */
     public function getBreed()
     {
-        return $this->hasOne(BreedDetails::className(), ['breed_id' => 'breed_id']);
+        return $this->hasOne(Breeds::className(), ['breed_id' => 'breed_id']);
     }
 
     /**

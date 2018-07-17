@@ -5,6 +5,7 @@ namespace app\modules\api\modules\v1\controllers;
 use common\models\PetCategory;
 use common\models\PetDetails;
 use common\models\BreedDetails;
+use common\models\Breeds;
 use common\models\Users;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
@@ -23,7 +24,7 @@ class BreedDetailsController extends \yii\web\Controller {
         $behaviors = parent::behaviors();
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::className(),
-            'only' => ['breeddetails','editbreeddetails'],
+            'only' => ['breeddetails', 'editbreeddetails'],
         ];
         $behaviors['contentNegotiator'] = [
             'class' => ContentNegotiator::className(),
@@ -33,10 +34,10 @@ class BreedDetailsController extends \yii\web\Controller {
         ];
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['breeddetails','editbreeddetails'],
+            'only' => ['breeddetails', 'editbreeddetails'],
             'rules' => [
                     [
-                    'actions' => ['breeddetails','editbreeddetails'],
+                    'actions' => ['breeddetails', 'editbreeddetails'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
@@ -45,7 +46,7 @@ class BreedDetailsController extends \yii\web\Controller {
         return $behaviors;
     }
 
-    public function actionBreeddetails() {
+    public function actionBreeddetails() {  //this function not used 
 
         $post = Yii::$app->request->getBodyParams();
         if (!empty($post)) {
@@ -73,9 +74,8 @@ class BreedDetailsController extends \yii\web\Controller {
             }
         }
     }
-    
-    
-    public function actionEditbreeddetails() {
+
+    public function actionEditbreeddetails() {  //this function not used 
 
         $post = Yii::$app->request->getBodyParams();
         if (!empty($post)) {
@@ -99,6 +99,39 @@ class BreedDetailsController extends \yii\web\Controller {
                 return [
                     'success' => false,
                     'message' => 'Breed cannot be edited',
+                ];
+            }
+        }
+    }
+
+    public function actionBreedlists() {
+
+        $post = Yii::$app->request->getBodyParams();
+        if (!empty($post)) {
+
+            $breeds = new Breeds();
+            $breeds = Breeds::find()->where(['pet_category_id' => $post['pet_category_id']])->all();
+
+            foreach ($breeds as $breed):
+
+                $values[] = [
+                    'breed_id' => $breed->breed_id,
+                    'breed_name' => $breed->breed_name,
+                ];
+
+            endforeach;
+
+            if ($breed != NULL) {
+
+                return [
+                    'success' => true,
+                    'message' => 'Success',
+                    'breed-details' => $values
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No breeds available'
                 ];
             }
         }

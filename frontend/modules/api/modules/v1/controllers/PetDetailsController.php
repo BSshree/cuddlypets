@@ -4,7 +4,9 @@ namespace app\modules\api\modules\v1\controllers;
 
 use common\models\PetDetails;
 use common\models\BreedDetails;
+use common\models\Breeds;
 use common\models\PetCategory;
+use common\models\Users;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\ContentNegotiator;
@@ -22,7 +24,7 @@ class PetDetailsController extends \yii\web\Controller {
         $behaviors = parent::behaviors();
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::className(),
-            'only' => ['petdetails', 'editpetdetails', 'deletepet'],
+            'only' => ['petdetails', 'editpetdetails', 'deletepet', 'petcategorylist'],
         ];
         $behaviors['contentNegotiator'] = [
             'class' => ContentNegotiator::className(),
@@ -32,10 +34,10 @@ class PetDetailsController extends \yii\web\Controller {
         ];
         $behaviors['access'] = [
             'class' => AccessControl::className(),
-            'only' => ['petdetails', 'editpetdetails', 'deletepet'],
+            'only' => ['petdetails', 'editpetdetails', 'deletepet', 'petcategorylist'],
             'rules' => [
                     [
-                    'actions' => ['petdetails', 'editpetdetails', 'deletepet'],
+                    'actions' => ['petdetails', 'editpetdetails', 'deletepet', 'petcategorylist'],
                     'allow' => true,
                     'roles' => ['@'],
                 ],
@@ -159,7 +161,7 @@ class PetDetailsController extends \yii\web\Controller {
 
         foreach ($pet_details as $pets):
 
-            $breed_details = BreedDetails::find()->where(['breed_id' => $pets['breed_id']])->one();
+            $breed_details = Breeds::find()->where(['breed_id' => $pets['breed_id']])->one();
             $pet_category = PetCategory::find()->where(['pet_category_id' => $pets['pet_category_id']])->one();
             $values[] = [
                 'pet_id' => $pets->pet_id,
@@ -187,8 +189,7 @@ class PetDetailsController extends \yii\web\Controller {
             ];
         }
     }
-    
-    
+
     public function actionListpet() {
 
         $post = Yii::$app->request->getBodyParams();
@@ -196,7 +197,7 @@ class PetDetailsController extends \yii\web\Controller {
 
         foreach ($pet_details as $pets):
 
-            $breed_details = BreedDetails::find()->where(['breed_id' => $pets['breed_id']])->one();
+            $breed_details = Breeds::find()->where(['breed_id' => $pets['breed_id']])->one();
             //$pet_category = PetCategory::find()->where(['pet_category_id' => $pets['pet_category_id']])->one();
             $values[] = [
                 'pet_id' => $pets->pet_id,
@@ -213,8 +214,8 @@ class PetDetailsController extends \yii\web\Controller {
             return [
                 'success' => true,
                 'message' => 'Success',
-               // 'pet_category_id' => $post['pet_category_id'],
-               // 'pet_category_name' => $pet_category['category_name'],
+                // 'pet_category_id' => $post['pet_category_id'],
+                // 'pet_category_name' => $pet_category['category_name'],
                 'data' => $values
             ];
         } else {
@@ -224,7 +225,6 @@ class PetDetailsController extends \yii\web\Controller {
             ];
         }
     }
-
 
     public function actionDeletepet() {
 
@@ -240,6 +240,33 @@ class PetDetailsController extends \yii\web\Controller {
             return [
                 'success' => false,
                 'message' => 'No Contact Exists',
+            ];
+        }
+    }
+
+    public function actionPetcategorylist() {
+
+        $post = Yii::$app->request->getBodyParams();
+        $pet_category = PetCategory::find()->all();
+        foreach ($pet_category as $pets):
+
+            $values[] = [
+                'pet_category_id' => $pets->pet_category_id,
+                'category_name' => $pets->category_name,
+            ];
+
+        endforeach;
+
+        if ($pet_category != NULL) {
+            return [
+                'success' => true,
+                'message' => 'Success',
+                'data' => $values
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'No category Exists',
             ];
         }
     }
