@@ -55,8 +55,6 @@ class UsersController extends ActiveController {
         $post = Yii::$app->request->getBodyParams();
         $password = $post['password'];
         if (!empty($post)) {
-            if ($post['password'] == $post['retype_password']) {
-
                 $user->load(Yii::$app->request->getBodyParams(), '');
                 $user->auth_key = $user->generateAuthKey();
                 $user->password = $user->setPassword($password);
@@ -109,12 +107,6 @@ class UsersController extends ActiveController {
                     ];
 //                    print_r($user->getErrors()); exit;
                 }
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'Password Mismatch'
-                ];
-            }
         } else {
             return [
                 'success' => false,
